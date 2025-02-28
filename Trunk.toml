@@ -1,0 +1,6 @@
+[build]
+release = true
+dist = "dist"
+
+[[static]]
+dir = "assets"

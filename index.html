@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLY Viewer</title>
+    <!--link data-trunk rel="copy-file" href="assets/apple.ply" /-->
+    <link data-trunk rel="copy-dir" href="assets/" />
+    <!-- 引入 Three.js 和 PLYLoader -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/PLYLoader.js"></script>
+    <!-- 引入 OrbitControls 控件 -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script>
+        function initThreeJS(container) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight); // 设置固定高度
+            container.appendChild(renderer.domElement);
+
+            // 添加 OrbitControls 控件以实现鼠标控制
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; // 启用阻尼效果，使旋转更平滑
+            controls.dampingFactor = 0.05; // 设置阻尼系数
+
+            // 创建蓝色立方体
+            const geometry = new THREE.BoxGeometry(1, 1, 1); // 创建 1x1x1 的立方体几何体
+            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // 设置蓝色材质
+            const cube = new THREE.Mesh(geometry, material);
+            //scene.add(cube); // 将立方体添加到场景
+
+            // 加载 .ply 文件
+            const loader = new THREE.PLYLoader();
+            loader.load('assets/man_basketball.ply', function (geometry) {
+                console.info(".ply file loaded");
+                geometry.computeVertexNormals();
+
+                let material;
+                // 检查是否有颜色信息
+                if (geometry.attributes.color) {
+                    console.log("PLY file contains color information");
+                    material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true }); // 使用 PLY 文件中的颜色信息
+                } else {
+                    console.log("PLY file does not contain color information, using default red color");
+                    material = new THREE.PointsMaterial({ size: 0.1, color: 0xff0000 }); // 使用默认的红色
+                }
+                //const material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true }); // 调整 size 为 0.01
+                //const material = new THREE.PointsMaterial({ size: 0.1, color: 0xff0000 });
+
+                const points = new THREE.Points(geometry, material);
+                scene.add(points);
+                //console.log('points is:', points);
+                // 获取并打印每个点的 x、y、z 坐标
+                // const positions = geometry.attributes.position;
+                // const count = positions.count; // 点的总数
+                // for (let i = 0; i < 100; i++) {
+                //     const x = positions.getX(i);
+                //     const y = positions.getY(i);
+                //     const z = positions.getZ(i);
+                //     console.info(`Point ${i}: x=${x}, y=${y}, z=${z}`);
+                // }
+
+                console.log('Geometry:', geometry);
+                if (!geometry.attributes.position) {
+                    console.error('Geometry 中缺少 position 属性');
+                    return;
+                }
+                const positions = geometry.attributes.position;
+                console.log('点数量:', positions.count);
+                const positionsArray = positions.array;
+                for (let i = 0; i < 10; i++) {
+                    const x = positionsArray[i * 3];
+                    const y = positionsArray[i * 3 + 1];
+                    const z = positionsArray[i * 3 + 2];
+                    console.log(`Point ${i}: x=${x}, y=${y}, z=${z}`);
+                }
+
+                // 自动调整相机位置以适应点云
+                const box = new THREE.Box3().setFromObject(points);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = camera.fov * (Math.PI / 180);
+                let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+                camera.position.set(center.x, center.y, center.z + cameraZ);
+                camera.position.z = 5;
+                camera.lookAt(center);
+                controls.target.set(center.x, center.y, center.z);
+            }, undefined, function (error) {
+                console.error('加载 PLY 文件时出错:', error);
+            });
+
+            // 渲染循环
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update(); // 更新控件状态
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // 初始化 Three.js
+        const container = document.getElementById("app");
+        initThreeJS(container);
+    </script>
+</body>
+
+</html>
