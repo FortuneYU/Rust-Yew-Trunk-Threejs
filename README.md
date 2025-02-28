@@ -1,8 +1,16 @@
-# Yew Trunk Template
+# Rust Yew Trunk Three.js: visualize point cloud on web!
 
+One example:
+![cow example point cloud screenshot](./point-cloud-web-demo-cow.png)
+Another example:
+![Rose point cloud example screenshot](./rose_example.png)
+These are  example screenshots of how the point cloud looks like in web. 
+
+
+Other guide:
 This is a fairly minimal template for a Yew app that's built with [Trunk].
 
-## Usage
+## Trunk Yew Usage
 
 For a more thorough explanation of Trunk and its features, please head over to the [repository][trunk].
 

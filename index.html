@@ -47,7 +47,7 @@
                 // 检查是否有颜色信息
                 if (geometry.attributes.color) {
                     console.log("PLY file contains color information");
-                    material = new THREE.PointsMaterial({ size: 0.01, vertexColors: true }); // 使用 PLY 文件中的颜色信息
+                    material = new THREE.PointsMaterial({ size: 0.003, vertexColors: true }); // 使用 PLY 文件中的颜色信息
                 } else {
                     console.log("PLY file does not contain color information, using default red color");
                     material = new THREE.PointsMaterial({ size: 0.1, color: 0xff0000 }); // 使用默认的红色
