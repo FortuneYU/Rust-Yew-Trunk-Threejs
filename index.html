@@ -18,6 +18,8 @@
     <div id="app"></div>
     <script>
         function initThreeJS(container) {
+            const ply_file_path = 'assets/rose.ply';
+            //const ply_file_path = 'assets/rose.ply';
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
             const renderer = new THREE.WebGLRenderer();
@@ -37,7 +39,7 @@
 
             // 加载 .ply 文件
             const loader = new THREE.PLYLoader();
-            loader.load('assets/cow.ply', function (geometry) {
+            loader.load(ply_file_path, function (geometry) {
                 console.info(".ply file loaded");
                 geometry.computeVertexNormals();
 
@@ -45,7 +47,7 @@
                 // 检查是否有颜色信息
                 if (geometry.attributes.color) {
                     console.log("PLY file contains color information");
-                    material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true }); // 使用 PLY 文件中的颜色信息
+                    material = new THREE.PointsMaterial({ size: 0.01, vertexColors: true }); // 使用 PLY 文件中的颜色信息
                 } else {
                     console.log("PLY file does not contain color information, using default red color");
                     material = new THREE.PointsMaterial({ size: 0.1, color: 0xff0000 }); // 使用默认的红色
