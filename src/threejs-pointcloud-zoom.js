@@ -4,11 +4,12 @@ function initThreeJS(container) {
   let curve = null;
   let curveT = 0;
   const curveSpeed = 0.0005; // 调整yi动速度
+  const sampleCountMin = 20;
+  const pointSize = 0.0006;
 
   let animationComplete = false; // 动画是否完成
   let autoRotationActive = false; // 是否启动新的自动旋转
   let newAngle = 0; // 用于新旋转动画的角度（以弧度计）
-
 
   // 保存初始状态：初始相机位置和模型中心
   let initialCameraPos = null;
@@ -56,7 +57,7 @@ function initThreeJS(container) {
   let autoAngle = 0; // 当前角度
 
   // 添加坐标轴辅助线（X：红色，Y：绿色，Z：蓝色）
-  const axesHelper = new THREE.AxesHelper(10); // 坐标轴长度 10
+  const axesHelper = new THREE.AxesHelper(0.2); // 坐标轴长度 10
   scene.add(axesHelper);
   // 添加坐标轴文本标注
   function createTextSprite(text, color) {
@@ -65,13 +66,13 @@ function initThreeJS(container) {
     canvas.width = 256;
     canvas.height = 128;
     ctx.fillStyle = color;
-    ctx.font = "Bold 40px Arial";
+    ctx.font = "Bold 10px Arial";
     ctx.fillText(text, 50, 60);
 
     const texture = new THREE.CanvasTexture(canvas);
     const material = new THREE.SpriteMaterial({ map: texture });
     const sprite = new THREE.Sprite(material);
-    sprite.scale.set(2, 1, 1); // 调整缩放以适应文字
+    sprite.scale.set(1, 1, 1); // 调整缩放以适应文字
     return sprite;
   }
 
@@ -80,17 +81,17 @@ function initThreeJS(container) {
   const labelY = createTextSprite("Y", "green");
   const labelZ = createTextSprite("Z", "blue");
   // 添加标注到场景
-  scene.add(labelX, labelY, labelZ);
+  //scene.add(labelX, labelY, labelZ);
 
   // 设置标注的位置（略微偏移，使其不遮挡坐标轴）
-  labelX.position.set(11, 0, 0);
-  labelY.position.set(0, 11, 0);
-  labelZ.position.set(0, 0, 11);
+  labelX.position.set(1, 0, 0);
+  labelY.position.set(0, 1, 0);
+  labelZ.position.set(0, 0, 1);
 
   // ---------------------------
   // 1. 添加 CameraHelper 显示相机视锥（FOV）
   const cameraHelper = new THREE.CameraHelper(camera);
-  scene.add(cameraHelper);
+  //scene.add(cameraHelper);
 
   // ---------------------------
   // 2. 添加相机图标（使用 Sprite）
@@ -122,6 +123,38 @@ function initThreeJS(container) {
   let unvisitedPoints = []; // 未访问的采样点集合
   let isTraversing = false; // 标记是否已开始最近邻遍历
 
+  // const capturer = new CCapture({ format: "webm", framerate: 30 });
+
+  // 视频保存
+
+
+  const stream = renderer.domElement.captureStream(30); // 30 FPS
+
+  const options = { mimeType: "video/webm; codecs=vp8" };
+  const mediaRecorder = new MediaRecorder(stream, options);
+  let chunks = [];
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      chunks.push(e.data);
+      console.info(".ply file loaded", chunks);
+    }
+  };
+  mediaRecorder.onstop = (e) => {
+    const blob = new Blob(chunks, { type: "video/webm" });
+    // 将 blob 保存为视频文件
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = "animation.webm";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  };
+
   // 加载 .ply 文件
   const loader = new THREE.PLYLoader();
   console.log("开始加载 PLY 文件:", ply_file_path);
@@ -135,7 +168,7 @@ function initThreeJS(container) {
       if (geometry.attributes.color) {
         console.log("PLY file contains color information");
         material = new THREE.PointsMaterial({
-          size: 0.0003,
+          size: pointSize,
           vertexColors: true,
         });
       } else {
@@ -182,7 +215,7 @@ function initThreeJS(container) {
       // 从点云采样出部分点（例如采样最多 200 个点）
       //const positionsArray = positions.array;
       const totalPoints = positions.count;
-      const sampleCount = Math.min(200, totalPoints);
+      const sampleCount = Math.min(sampleCountMin, totalPoints);
       const step = Math.floor(totalPoints / sampleCount);
       for (let i = 0; i < totalPoints; i += step) {
         const x = positionsArray[i * 3];
@@ -344,33 +377,55 @@ function initThreeJS(container) {
       }
     }
 
+    //mediaRecorder.stop();
     // 如果启动了自动旋转（遍历动画完成且延迟结束），则更新相机位置以绕着模型中心顺时针旋转
+    //autoRotationActive = 0;
     if (autoRotationActive) {
       // 计算半径（保持相机与初始中心的距离）
       const radius = initialCameraPos.distanceTo(initialTarget);
       // 增加角度，新角度为负数以实现顺时针旋转
-      newAngle += 0.001; // 调整此值控制旋转速度
+      newAngle += 0.002; // 调整此值控制旋转速度
       camera.position.x = initialTarget.x + radius * Math.cos(newAngle);
       camera.position.z = initialTarget.z + radius * Math.sin(newAngle);
       camera.position.y = initialCameraPos.y; // 保持高度不变
       camera.lookAt(initialTarget);
       controls.target.copy(initialTarget);
-    }
 
-    controls.update();
-    TWEEN.update();
-    renderer.render(scene, camera);
+      setTimeout(() => {
+        autoRotationActive = 0;
+      }, 60000);// in
+
+
+    }
 
     // 更新信息覆盖层，显示相机位置和 FOV
     infoDiv.innerHTML = `Camera Position: (${camera.position.x.toFixed(
       2
     )}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)})<br>
-    Camera Rotation: (${camera.rotation.x.toFixed(
-      2
-    )}, ${camera.rotation.y.toFixed(2)}, ${camera.rotation.z.toFixed(2)})`;
+        Camera Rotation: (${camera.rotation.x.toFixed(
+          2
+        )}, ${camera.rotation.y.toFixed(2)}, ${camera.rotation.z.toFixed(2)})`;
+
+    controls.update();
+    TWEEN.update();
+    renderer.render(scene, camera);
+
+    //capturer.capture(renderer.domElement);
   }
 
+  mediaRecorder.start();
+  setTimeout(() => {
+    mediaRecorder.stop();
+  }, 120000);// in
+
+  // capturer.start();
+
+
+
   animate();
+
+  // capturer.stop();
+  // capturer.save();
 }
 
 const container = document.getElementById("app");
