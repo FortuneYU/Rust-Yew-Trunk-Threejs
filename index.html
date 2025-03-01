@@ -5,14 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLY Viewer</title>
+    <!-- refer to: https://trunkrs.dev/guide/assets/index.html?highlight=copy-file#copy-file -->
     <!--link data-trunk rel="copy-file" href="assets/apple.ply" /-->
     <link data-trunk rel="copy-dir" href="assets/" />
     <!--link data-trunk rel="copy-file" href="src/threejs-pointcloud.js" /-->
-    <!-- 引入 Three.js 和 PLYLoader -->
+    <!-- 引入 Three.js 和 PLYLoader  CDN（内容分发网络） https://www.jsdelivr.com/ -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/PLYLoader.js"></script>
     <!-- 引入 OrbitControls 控件 -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/TrackballControls.js"></script>
+
 </head>
 
 <body>
