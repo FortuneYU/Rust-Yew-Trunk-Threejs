@@ -1,9 +1,9 @@
 # Rust Yew Trunk Three.js: visualize point cloud on web!
 
 One example:
-![cow example point cloud screenshot](./point-cloud-web-demo-cow.png)
+![cow example point cloud screenshot](./assets/point-cloud-web-demo-cow.png)
 Another example:
-![Rose point cloud example screenshot](./rose_example.png)
+![Rose point cloud example screenshot](./assets/rose_example.png)
 These are  example screenshots of how the point cloud looks like in web. 
 
 
