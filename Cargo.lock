@@ -3,6 +3,16 @@
 version = 4
 
 [[package]]
+name = "Rust-Yew-Trunk-Threejs"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "wasm-bindgen",
+ "web-sys",
+ "yew",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -707,16 +717,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.96",
-]
-
-[[package]]
-name = "threejs-project-test"
-version = "0.1.0"
-dependencies = [
- "log",
- "wasm-bindgen",
- "web-sys",
- "yew",
 ]
 
 [[package]]
