@@ -131,6 +131,7 @@ export function initThreeJS(container) {
   // const capturer = new CCapture({ format: "webm", framerate: 30 });
 
   // 视频保存
+  // add video recording function
 
 
   const stream = renderer.domElement.captureStream(30); // 30 FPS
