@@ -8,15 +8,24 @@
     <!-- refer to: https://trunkrs.dev/guide/assets/index.html?highlight=copy-file#copy-file -->
     <!--link data-trunk rel="copy-file" href="assets/apple.ply" /-->
     <link data-trunk rel="copy-dir" href="assets/" />
-    <!--link data-trunk rel="copy-file" href="src/threejs-pointcloud.js" /-->
-    <!-- 引入 Three.js 和 PLYLoader  CDN（内容分发网络） https://www.jsdelivr.com/ -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/PLYLoader.js"></script>
-    <!-- 引入 OrbitControls 控件 -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/TrackballControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ccapture.js@1.1.0/build/CCapture.all.min.js"></script>
+    <link data-trunk rel="copy-dir" href="node_modules/" />
+    <!-- link data-trunk rel="copy-file" href="src/threejs-pointcloud-transform.js" /-->
+
+    <!-- 在浏览器环境中直接使用裸导入（例如 import { TrackballControls } from 'three';）会报错，因为浏览器不支持裸模块名称，只能识别以 “/”、“./” 或 “../” 开头的相对或绝对路径。-->
+    <!-- 使用 Import Map 可以将裸导入映射到实际的文件路径，从而让浏览器正确解析。-->
+     <!--             -->>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "./node_modules/three/build/three.module.js",
+            "three/examples/jsm/controls/TrackballControls.js": "./node_modules/three/examples/jsm/controls/TrackballControls.js",
+            "three/examples/jsm/loaders/PLYLoader.js": "./node_modules/three/examples/jsm/loaders/PLYLoader.js",
+            "@tweenjs/tween.js": "./node_modules/@tweenjs/tween.js/dist/tween.esm.js"
+          }
+        }
+    </script>
+
+
 
 
 
@@ -26,7 +35,16 @@
     <div id="app"></div>
     <!-- 引用外部 JavaScript 文件 -->
     <!-- refer to: https://trunkrs.dev/guide/assets/index.html?highlight=copy-file#script-assets -->
-    <script data-trunk src="src/threejs-pointcloud-zoom.js"></script>
+    <!-- script data-trunk src="src/threejs-pointcloud-transform.js"></script -->
+    <!-- script type="module" src="src/threejs-pointcloud-transform.js"></script -->
+
+    
+    <script type="module">
+        import { initThreeJS } from "./assets/threejs-pointcloud-zoom.js";
+        window.initThreeJS = initThreeJS; // 暴露给 Rust 调用
+    </script>
+
+
 </body>
 
 </html>

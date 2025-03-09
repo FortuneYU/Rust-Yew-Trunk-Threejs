@@ -4,3 +4,18 @@ dist = "dist"
 
 [[static]]
 dir = "assets"
+
+
+[[copy]]
+source = "node_modules/three/build/three.module.js"
+destination = "three.module.js"
+
+[[copy]]
+source = "node_modules/three/examples/jsm/loaders/PLYLoader.js"
+destination = "PLYLoader.js"
+
+[[copy]]
+source = "src/threejs-pointcloud-transform.js"
+destination = "threejs-pointcloud-transform.js"
+
+

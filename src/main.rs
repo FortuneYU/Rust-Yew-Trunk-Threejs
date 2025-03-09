@@ -34,7 +34,20 @@ impl Component for App {
             let window = web_sys::window().unwrap();
             let document = window.document().unwrap();
             let container = document.get_element_by_id("threejs-container").unwrap();
-            initThreeJS(&container);
+            
+            
+            //initThreeJS(&container);
+             // Delay the call to initThreeJS
+            let closure = Closure::wrap(Box::new(move || {
+                initThreeJS(&container);
+            }) as Box<dyn Fn()>);
+            window
+                .set_timeout_with_callback_and_timeout_and_arguments_0(
+                    closure.as_ref().unchecked_ref(),
+                    100, // Delay by 100ms
+                )
+                .unwrap();
+            closure.forget(); // Prevent memory leak
         }
     }
 }
