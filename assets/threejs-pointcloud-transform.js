@@ -4,6 +4,8 @@
 import * as THREE from "three";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader.js";
+import * as TWEEN from '@tweenjs/tween.js'
+
 
 export function initThreeJS(container) {
 
@@ -152,10 +154,12 @@ export function initThreeJS(container) {
     rotationSpeed: 0.01,
     pointColor: "#ff00b4",
     pointSize: 10,
+    transformFlag: false,
   };
   gui.add(controlParams, "rotateFlag").name("旋转开关");
   gui.add(controlParams, "rotationSpeed", 0, 0.1).name("旋转速度");
   gui.add(controlParams, "pointSize", 0, 30).name("点的大小");
+  gui.add(controlParams, "transformFlag").name("变换!");
 
   // 添加颜色选择器控件，当颜色改变时，更新点材质的颜色
   gui
@@ -168,9 +172,9 @@ export function initThreeJS(container) {
 
   // 5.创建物体
   // 正方体
-  const boxGeometry = new THREE.BoxGeometry(100, 100, 100, 2, 2, 2);
+  const boxGeometry = new THREE.BoxGeometry(100, 100, 100, 20, 20, 20);
   // 球体
-  const sphereGeometry = new THREE.SphereGeometry(100, 12, 12);
+  const sphereGeometry = new THREE.SphereGeometry(100, 50, 50);
   const material = new THREE.PointsMaterial({
     color: controlParams.pointColor,
     size: 2,
@@ -180,6 +184,31 @@ export function initThreeJS(container) {
 
   // 6.将物体添加到场景中
   scene.add(point_new);
+
+
+
+     // 创建一个对象来保存点的位置
+  //const pointPositions = { positions: boxGeometry.attributes.position.array };
+  const pointPositions = {positions: boxGeometry.attributes.position.array};
+
+  // 定义 transitionToSphere 函数，增加 duration 参数控制变换时间
+  function transitionToSphere(duration) {
+    const fromPositions = boxGeometry.attributes.position.array;
+    const toPositions = sphereGeometry.attributes.position.array;
+
+    // 创建补间动画
+    new TWEEN.Tween(pointPositions)
+      .to({ positions: toPositions }, duration)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onUpdate(() => {
+        // 更新点的位置
+        point_new.geometry.attributes.position.array = pointPositions.positions;
+        point_new.geometry.attributes.position.needsUpdate = true;
+      })
+      .start();
+  }
+
+  //transitionToSphere(5000);
 
   // 7. 创建动画
   function animate() {
@@ -191,12 +220,23 @@ export function initThreeJS(container) {
 
     point_new.material.size = controlParams.pointSize;
 
+    //TWEEN.update();
+    if (controlParams.transformFlag) {
+      transitionToSphere(5000);
+      controlParams.transformFlag = false;
+
+    }
+    TWEEN.update();
+
     controls.update();
     renderer.render(scene, camera);
   }
 
   //8. 运行动画
   animate();
+  
+
+
 }
 
 window.initThreeJS = initThreeJS; // Expose to global scope
