@@ -3,12 +3,13 @@
 
 import * as THREE from "three";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
-import { PLYLoader } from "three/examples/jsm/Addons.js";
-
+import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader.js";
 
 export function initThreeJS(container) {
-  console.log("initThreeJS called with container:", container);
 
+  console.log("initThreeJS called with container:", container);
+  // 设置容器的上边距
+  container.style.marginTop = '70px';
 
   // 创建文本 Sprite 的函数
   function createTextSprite(message, parameters) {
@@ -69,9 +70,6 @@ export function initThreeJS(container) {
     return sprite;
   }
 
-
-
-
   /// 初始化场景
   // 示例：添加网格和坐标轴，并在轴旁边添加标注
   function initScene() {
@@ -119,10 +117,7 @@ export function initThreeJS(container) {
     return scene;
   }
 
-
-
-
-// 1. 创建场景
+  // 1. 创建场景
   //const scene = new THREE.Scene();
   const scene = initScene();
 
@@ -135,13 +130,11 @@ export function initThreeJS(container) {
   );
   camera.position.set(0, 0, 500); // 设置合适的初始位置
 
-
   // 3. 创建渲染器
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   container.appendChild(renderer.domElement);
-
 
   // 4. 创建 TrackballControls 控制器
   const controls = new TrackballControls(camera, renderer.domElement);
@@ -151,11 +144,35 @@ export function initThreeJS(container) {
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
 
+  // 4.5 add control gui
+  const gui = new dat.GUI();
+
+  const controlParams = {
+    rotateFlag: true,
+    rotationSpeed: 0.01,
+    pointColor: "#ff00b4",
+    pointSize: 10,
+  };
+  gui.add(controlParams, "rotateFlag").name("旋转开关");
+  gui.add(controlParams, "rotationSpeed", 0, 0.1).name("旋转速度");
+  gui.add(controlParams, "pointSize", 0, 30).name("点的大小");
+
+  // 添加颜色选择器控件，当颜色改变时，更新点材质的颜色
+  gui
+    .addColor(controlParams, "pointColor")
+    .name("点颜色")
+    .onChange((value) => {
+      // 更新点对象材质的颜色
+      point_new.material.color.set(value);
+    });
+
   // 5.创建物体
+  // 正方体
   const boxGeometry = new THREE.BoxGeometry(100, 100, 100, 2, 2, 2);
+  // 球体
   const sphereGeometry = new THREE.SphereGeometry(100, 12, 12);
   const material = new THREE.PointsMaterial({
-    color: 0xffffff,
+    color: controlParams.pointColor,
     size: 2,
     transparent: true,
   });
@@ -163,12 +180,16 @@ export function initThreeJS(container) {
 
   // 6.将物体添加到场景中
   scene.add(point_new);
-  //scene.add(camera);
 
   // 7. 创建动画
   function animate() {
     requestAnimationFrame(animate);
-    //point_new.rotation.y+=0.001;
+
+    if (controlParams.rotateFlag) {
+      point_new.rotation.y += controlParams.rotationSpeed;
+    }
+
+    point_new.material.size = controlParams.pointSize;
 
     controls.update();
     renderer.render(scene, camera);

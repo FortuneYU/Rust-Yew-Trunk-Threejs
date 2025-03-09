@@ -25,6 +25,8 @@
         }
     </script>
 
+    <script src="./node_modules/dat.gui/build/dat.gui.js"></script>
+
 
 
 
@@ -40,7 +42,7 @@
 
     
     <script type="module">
-        import { initThreeJS } from "./assets/threejs-pointcloud-zoom.js";
+        import { initThreeJS } from "./assets/threejs-pointcloud-transform.js";
         window.initThreeJS = initThreeJS; // 暴露给 Rust 调用
     </script>
 
